@@ -12,16 +12,16 @@ class UsersController extends AppController {
 	
 	//Add an email field to be saved along with creation.
 	function beforeFacebookSave(){
-// 	  debug('beforeFacebookSave');
-// 	  exit();
+	  //debug('beforeFacebookSave');
 	  $this->Connect->authUser['User']['email'] = $this->Connect->user('email');
-	  return true; //Must return true or will not save.
+	  return !empty($this->Connect->authUser['User']['email']);
 	}
 	
 	function beforeFacebookLogin($user){
 	  //Logic to happen before a facebook login
-	  debug('beforeFacebookLogin');
-	  debug($user);
+// 	  debug('beforeFacebookLogin');
+// 	  debug($user);
+// 	  exit();
 	}
 	
 	function afterFacebookLogin(){
