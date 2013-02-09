@@ -32,6 +32,11 @@ App::uses('Controller', 'Controller');
  * @link http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+  public $helpers = array(
+      'Html','Form',
+      'Facebook.Facebook',
+      'Bootstrap' => array('className' => 'TwitterBootstrap.TwitterBootstrap'));
+  
   public $components = array('Session',
       'DebugKit.Toolbar',
       'Auth' => array(
@@ -45,4 +50,19 @@ class AppController extends Controller {
       'Facebook.Connect' => array('model' => 'User')
   );
   
+  const ACCOUNT_LIST = 'account_list';
+  protected function getAccountList($refresh = false)
+  {
+    $accounts = array();
+    if ($refresh || (null === ($accountList = $this->Session->read(self::ACCOUNT_LIST))))
+    {
+      $this->loadModel('Account');
+      if ($user = $this->Auth->user())
+      {
+        $accounts = $this->Account->getAccountsForUser($user);
+        $this->Session->write(self::ACCOUNT_LIST, $accounts);
+      }
+    }
+    return $accounts;
+  }
 }

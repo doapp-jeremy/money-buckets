@@ -3,31 +3,32 @@ App::uses('AppController', 'Controller');
 
 class UsersController extends AppController {
 
-  public $helpers = array('Facebook.Facebook');
-  
-/**
- * Controller name
- *
- * @var string
- */
-	public $name = 'Users';
-
 	public $uses = array();
 
+	function isAuthorized()
+	{
+	  return true;
+	}
+	
 	//Add an email field to be saved along with creation.
 	function beforeFacebookSave(){
-	  debug($this->Connect->authUser);
-	  debug($this->Connect->user('email'));
+// 	  debug('beforeFacebookSave');
+// 	  exit();
 	  $this->Connect->authUser['User']['email'] = $this->Connect->user('email');
-	  debug($this->Connect->authUser);
 	  return true; //Must return true or will not save.
 	}
 	
 	function beforeFacebookLogin($user){
 	  //Logic to happen before a facebook login
+	  debug('beforeFacebookLogin');
+	  debug($user);
 	}
 	
 	function afterFacebookLogin(){
+// 	  debug('afterFacebookLogin');
+// 	  debug($this->Connect->user());
+// 	  debug($this->Auth->user());
+// 	  exit();
 	  //Logic to happen after successful facebook login.
 	  $this->redirect('/buckets');
 	}
@@ -41,5 +42,6 @@ class UsersController extends AppController {
 	public function logout(){
 	  $this->Auth->logout();
 	  $this->Session->destroy();
+	  $this->redirect('login');
 	}
 }
