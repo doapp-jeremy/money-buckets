@@ -30,10 +30,11 @@ DROP TABLE IF EXISTS `moneybuckets`.`buckets` ;
 CREATE  TABLE IF NOT EXISTS `moneybuckets`.`buckets` (
   `id` INT NOT NULL AUTO_INCREMENT ,
   `account_id` INT NULL ,
-  `name` INT NOT NULL ,
+  `name` VARCHAR(255) NOT NULL ,
   `description` TEXT NULL ,
   `opening_balance` DECIMAL(20,2) NULL DEFAULT 0 ,
-  `current_balance` DECIMAL(20,2) NULL DEFAULT 0 ,
+  `available_balance` DECIMAL(20,2) NULL DEFAULT 0 ,
+  `actual_balance` DECIMAL(20,2) NULL DEFAULT 0 ,
   `created` DATETIME NULL ,
   `modified` DATETIME NULL ,
   PRIMARY KEY (`id`) ,

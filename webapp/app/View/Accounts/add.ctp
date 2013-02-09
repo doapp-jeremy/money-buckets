@@ -19,7 +19,7 @@ echo $this->Form->create('Account', array(
 			'label'=>array('text'=>__('Name'),'class'=>'control-label'),
 			'required',			//Set HTML5 required attribure
 	));	
-	echo $this->Form->input("Bucket.name", array(
+	echo $this->Form->input("Bucket.0.name", array(
 	    'type' => 'hidden',
 	    'value' => 'Unallocated'
 	));

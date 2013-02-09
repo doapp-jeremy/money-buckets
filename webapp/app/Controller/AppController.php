@@ -33,10 +33,10 @@ App::uses('Controller', 'Controller');
  */
 class AppController extends Controller {
   public $helpers = array(
-      'Html','Form',
+      'Html','Form','Js','Session',
       'Facebook.Facebook',
+      'AssetCompress.AssetCompress',
       'Bootstrap' => array('className' => 'TwitterBootstrap.TwitterBootstrap'));
-  
   public $components = array('Session',
       'DebugKit.Toolbar',
       'Auth' => array(
@@ -54,7 +54,7 @@ class AppController extends Controller {
   protected function getAccountList($refresh = false)
   {
     $accounts = array();
-    if ($refresh || (null === ($accountList = $this->Session->read(self::ACCOUNT_LIST))))
+    if ($refresh || (null === ($accounts = $this->Session->read(self::ACCOUNT_LIST))))
     {
       $this->loadModel('Account');
       if ($user = $this->Auth->user())

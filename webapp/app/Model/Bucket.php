@@ -30,5 +30,10 @@ class Bucket extends AppModel {
 //       )
 //   );
   
+  public function getBucketsForAccounts($accountIds)
+  {
+    $conditions = array($this->alias . '.account_id' => $accountIds);
+    return $this->find('all',compact('conditions'));
+  }
   
 }

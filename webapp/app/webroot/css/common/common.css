@@ -1,0 +1,18 @@
+@CHARSET "UTF-8";
+#listTable_wrapper {
+  margin-top: 15px;
+}
+
+#listTable th {
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+#listTable .check {
+  padding: 6px;
+  vertical-align: middle; 
+}
+
+#listTable td {
+  font-size: 13px;
+}
