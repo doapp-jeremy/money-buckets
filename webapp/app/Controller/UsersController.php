@@ -5,15 +5,18 @@ class UsersController extends AppController {
 
 	public $uses = array();
 
-	function isAuthorized()
-	{
-	  return true;
-	}
-	
 	//Add an email field to be saved along with creation.
 	function beforeFacebookSave(){
 	  //debug('beforeFacebookSave');
-	  $this->Connect->authUser['User']['email'] = $this->Connect->user('email');
+	  $email = trim($this->Connect->user('email'));
+	  debug($email);
+	  if (empty($email))
+	  {
+	  	debug("empty email");
+	  	exit();
+	  	return false;
+	  }
+	  $this->Connect->authUser['User']['email'] = $email;
 	  return !empty($this->Connect->authUser['User']['email']);
 	}
 	
@@ -36,6 +39,7 @@ class UsersController extends AppController {
 	public function login() {
 	  if($user = $this->Connect->registrationData()){
 	    debug($user);
+	    exit();
 	  }
 	}
 	
@@ -43,5 +47,15 @@ class UsersController extends AppController {
 	  $this->Auth->logout();
 	  $this->Session->destroy();
 	  $this->redirect('login');
+	}
+	
+	public function account(){
+		$user = $this->Auth->user();
+		$accountIds = $this->getAccountIds();
+		
+		$this->loadModel('BankAccount');
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds);
+		
+		$this->set(compact('user','bankAccounts'));
 	}
 }

@@ -50,8 +50,13 @@ class AppController extends Controller {
       'Facebook.Connect' => array('model' => 'User')
   );
   
+  function isAuthorized()
+  {
+  	return true;
+  }
+  
   const ACCOUNT_LIST = 'account_list';
-  protected function getAccountList($refresh = false)
+  protected function getAccountList($refresh = false, $redirectIfEmpty = true)
   {
     $accounts = array();
     if ($refresh || (null === ($accounts = $this->Session->read(self::ACCOUNT_LIST))))
@@ -63,6 +68,16 @@ class AppController extends Controller {
         $this->Session->write(self::ACCOUNT_LIST, $accounts);
       }
     }
+    if ($redirectIfEmpty && empty($accounts))
+    {
+    	$this->redirect(array('controller' => 'Accounts','action' => 'add'));
+    }
     return $accounts;
+  }
+  
+  protected function getAccountIds($refresh = false, $redirectIfEmpty = true)
+  {
+  	$accountList = $this->getAccountList($refresh, $redirectIfEmpty);
+  	return array_keys($accountList);
   }
 }

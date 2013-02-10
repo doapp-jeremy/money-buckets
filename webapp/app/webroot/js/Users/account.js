@@ -1,21 +1,20 @@
 var oTable;
 var timeoutObj;
 var mainSelectElement = '#mainSelect';
-
 $(function() {  
- oTable = $('#listTable').dataTable( {
+ oTable = $('#bankAccountsTable').dataTable( {
     "sDom": "<'row'<'span12'f>r><'row'<'span12 adActions'>>t<'row'<'span6'li><'span6'p>>",
     "sPaginationType": "bootstrap",
     'aaSorting':[[0, 'asc']],
     "oLanguage": {
       "sLengthMenu": "_MENU_ records per page",
-      "sEmptyTable": "No buckets",
+      "sEmptyTable": "No bank accounts",
     },
     "iDisplayLength":10,
     "aoColumns": [
                 {
                   "sTitle": "Name",
-                  "mData": "Bucket.name",
+                  "mData": "BankAccount.name",
                   "sWidth": "200px",
                   "mRender": function( data, type, full ) {
                     var theName = jQuery('<div />').text(data).html();
@@ -23,8 +22,8 @@ $(function() {
                   },
                 },
                 {
-                  "sTitle": "Available Balance",
-                  "mData": "Bucket.available_balance",
+                  "sTitle": "Current Balance",
+                  "mData": "BankAccount.current_balance",
                   "mRender": function( data, type, full ) {
                     return data;
                     // TODO: implement formatNumber return formatNumber(data);
@@ -32,8 +31,8 @@ $(function() {
                   "sType": "formatted-num"
                 },
                 {
-                  "sTitle": "Actual Balance",
-                  "mData": "Bucket.actual_balance",
+                  "sTitle": "Unallocated Balance",
+                  "mData": "BankAccount.unallocated_balance",
                   "mRender": function( data, type, full ) {
                     return data;
                     // TODO: implement formatNumber return formatNumber(data);
@@ -48,7 +47,7 @@ $(function() {
         }
   } );  
   
-  getData();
+  loadBankAccounts();
   
 });
 
@@ -57,11 +56,11 @@ $(function() {
  * 
  */
 
-function getData() {
+function loadBankAccounts() {
   data = {
       consistent_read: "false"
   };
-  theUrl = '/buckets/get_list';
+  theUrl = '/bank_accounts/get_list';
   oTable.fnClearTable();
   $(".dataTables_empty").html('<img width="16" height="16" src="http://d3er7671q71co0.cloudfront.net/img/spinner.gif" /> <b>Loading data...</b>');
   
@@ -74,14 +73,14 @@ function getData() {
       contentType: "application/json; charset=utf-8"
     })
     .done(function(data, textStatus, jqXHR) {
-      if(!data.buckets){
+      if(!data.bank_accounts){
         alert("Error getting data. Please re-load the page and try again. Code: " + code + " ResponseTxt: " + jqXHR.responseText + ".Data: \n" + data);
       }
-      if(data.buckets.length == 0) {
+      if(data.bank_accounts.length == 0) {
         oTable.fnClearTable();
       }
       
-      oTable.fnAddData(data.buckets);
+      oTable.fnAddData(data.bank_accounts);
     })
       .fail(function(jqXHR, textStatus, errorThrown) {
         alert("Error getting data. Msg: " + textStatus + " ResponseTxt: " + jqXHR.responseText);

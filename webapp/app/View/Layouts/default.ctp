@@ -92,7 +92,8 @@ $this->AssetCompress->autoInclude = false;
 		echo $this->fetch('script');
 		echo $this->Js->writeBuffer(); // Any Buffered Scripts
 	?>	
-  <script src="/js/Buckets/index.js"></script>
+  <!-- <script src="/js/Buckets/index.js"></script>-->
+  <script src="/js/Users/account.js"></script>
   <script src="/js/common/custom_datatables.js"></script>
   <script src="/js/common/plugins.js"></script>
   <script src="/js/jquery-plugins/bootstrap.js"></script>
