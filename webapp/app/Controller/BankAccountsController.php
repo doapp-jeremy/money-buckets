@@ -26,7 +26,7 @@ class BankAccountsController extends AppController {
 			$this->request->data['BankAccount']['unallocated_balance'] = $this->request->data['BankAccount']['opening_balance'];
 			$this->loadModel('BankAccount');
 			$this->BankAccount->create();
-			if (!$this->BankAccount->save($this->request->data))
+			if ($this->BankAccount->save($this->request->data))
 			{
 				$this->Session->setFlash("Bank Account {$this->request->data['BankAccount']['name']} added!",'flash_success');
 				$this->redirect(array('controller' => 'Users', 'action' => 'account'));

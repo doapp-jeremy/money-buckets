@@ -158,7 +158,7 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   `user_id` INT NOT NULL ,
   `creator_id` INT NOT NULL ,
   `date` DATE NOT NULL ,
-  `where` VARCHAR(255) NULL ,
+  `label` VARCHAR(255) NULL ,
   `amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `unallocated_amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `created` DATETIME NULL ,
@@ -168,7 +168,7 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   INDEX `fk_transactions_user` (`user_id` ASC) ,
   INDEX `fk_transactions_creator` (`creator_id` ASC) ,
   INDEX `bank_account_date` (`date` ASC, `bank_account_id` ASC) ,
-  INDEX `where` (`where` ASC) ,
+  INDEX `where` (`label` ASC) ,
   CONSTRAINT `fk_transactions_bank_account`
     FOREIGN KEY (`bank_account_id` )
     REFERENCES `moneybuckets`.`bank_accounts` (`id` )

@@ -55,6 +55,13 @@ class AppController extends Controller {
   	return true;
   }
   
+  function beforeRender()
+  {
+  	$this->set(array('controller' => $this->name));
+  	$this->set(array('action' => $this->action));
+  	return parent::beforeRender();
+  }
+  
   const ACCOUNT_LIST = 'account_list';
   protected function getAccountList($refresh = false, $redirectIfEmpty = true)
   {
