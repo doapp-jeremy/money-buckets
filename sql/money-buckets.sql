@@ -1,3 +1,4 @@
+SET FOREIGN_KEY_CHECKS=0;
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
@@ -148,6 +149,21 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `moneybuckets`.`transaction_types`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `moneybuckets`.`transaction_types` ;
+
+CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transaction_types` (
+  `id` INT NOT NULL AUTO_INCREMENT ,
+  `name` VARCHAR(32) NOT NULL ,
+  `created` DATETIME NULL ,
+  `modified` DATETIME NULL ,
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `moneybuckets`.`transactions`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `moneybuckets`.`transactions` ;
@@ -157,9 +173,13 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   `bank_account_id` INT NOT NULL ,
   `user_id` INT NOT NULL ,
   `creator_id` INT NOT NULL ,
+  `transaction_type_id` INT NOT NULL ,
+  `previous_transaction_id` INT NULL ,
   `date` DATE NOT NULL ,
   `label` VARCHAR(255) NULL ,
+  `bank_account_before` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
+  `bank_account_after` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `unallocated_amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `created` DATETIME NULL ,
   `modified` DATETIME NULL ,
@@ -169,6 +189,8 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   INDEX `fk_transactions_creator` (`creator_id` ASC) ,
   INDEX `bank_account_date` (`date` ASC, `bank_account_id` ASC) ,
   INDEX `where` (`label` ASC) ,
+  INDEX `fk_transactions_transaction_type` (`transaction_type_id` ASC) ,
+  INDEX `fk_transactions_previous_transaction` (`previous_transaction_id` ASC) ,
   CONSTRAINT `fk_transactions_bank_account`
     FOREIGN KEY (`bank_account_id` )
     REFERENCES `moneybuckets`.`bank_accounts` (`id` )
@@ -182,6 +204,16 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   CONSTRAINT `fk_transactions_creator`
     FOREIGN KEY (`creator_id` )
     REFERENCES `moneybuckets`.`users` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_transactions_transaction_type`
+    FOREIGN KEY (`transaction_type_id` )
+    REFERENCES `moneybuckets`.`transaction_types` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_transactions_previous_transaction`
+    FOREIGN KEY (`previous_transaction_id` )
+    REFERENCES `moneybuckets`.`transactions` (`id` )
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -226,4 +258,54 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`users`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`users` (`id`, `email`, `facebook_id`, `created`, `modified`) VALUES (1, 'junker37@gmail.com', 605129552, NULL, NULL);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`buckets`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (1, 1, 'Unallocated', 'Funds not allocated yet', 0, 0, 0, NULL, NULL);
+INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (2, 1, 'Gas', 'Automobile gas', 90, 90, 90, NULL, NULL);
+INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (3, 1, 'Utilies', 'Water,electric,natural gas, etc', 167.12, 167.12, 167.12, NULL, NULL);
+INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (4, 1, 'Miscellaneous', 'Miscellaneous expenditures', 40, 40, 40, NULL, NULL);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`accounts`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`accounts` (`id`, `user_id`, `name`, `unallocated_bucket_id`, `created`, `modified`) VALUES (1, 1, 'Main Account', 1, NULL, NULL);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`bank_accounts`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`bank_accounts` (`id`, `account_id`, `name`, `opening_balance`, `current_balance`, `unallocated_balance`, `created`, `modified`) VALUES (1, 1, 'Perk St. Checking', 297.12, 297.12, 0, '2013-02-01', NULL);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`transaction_types`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`transaction_types` (`id`, `name`, `created`, `modified`) VALUES (1, 'Purchase', NULL, NULL);
+INSERT INTO `moneybuckets`.`transaction_types` (`id`, `name`, `created`, `modified`) VALUES (2, 'Deposit', NULL, NULL);
+INSERT INTO `moneybuckets`.`transaction_types` (`id`, `name`, `created`, `modified`) VALUES (3, 'Transfer', NULL, NULL);
+
+COMMIT;
 

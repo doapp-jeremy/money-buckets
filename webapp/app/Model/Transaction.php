@@ -5,8 +5,17 @@ class Transaction extends AppModel {
   const DEPOSIT = 2;
   const TRANSFER = 3;
   
+  public $order = array('Transaction.date' => 'ASC', 'Transaction.created' => 'ASC');
+  
   public $belongsTo = array(
-      'BankAccount' => array(
+      'PreviousTransaction' => array(
+          'className' => 'PreviousTransaction',
+          'foreignKey' => 'previous_transaction_id',
+          'conditions' => '',
+          'fields' => '',
+          'order' => ''
+      ),
+  		'BankAccount' => array(
           'className' => 'BankAccount',
           'foreignKey' => 'bank_account_id',
           'conditions' => '',
@@ -30,6 +39,28 @@ class Transaction extends AppModel {
   				'counterQuery' => ''
   		)
   );
+  
+//   public function beforeDelete($cascade = true)
+//   {
+//   	$fields = array('Transaction.bank_account_id','Transaction.amount','Transaction.unallocated_amount');
+//   	$conditions = array('Transaction.id' => $this->id);
+//   	$contain = array(
+//   			'BankAccount' => array('fields' => array('BankAccount.id','BankAccount.account_id','BankAccount.current_balance','BankAccount.unallocated_balance')),
+//   			'TransactionEntry' => array(
+//   					'fields' => array('TransactionEntry.bucket_id','TransactionEntry.amount'),
+//   					'conditions' => array('TransactionEntry.amount > 0'),
+//   					'Bucket' => array('fields' => array('Bucket.available_balance','Bucket.actual_balance'))
+//   			),
+//   	);
+//   	$transaction = $this->find('first',compact('fields','conditions','contain'));
+//   	debug($transaction);
+//   	exit();
+//   }
+  
+//   public function afterDelete()
+//   {
+  	
+//   }
   
   public function updateAfterSave($transaction)
   {
