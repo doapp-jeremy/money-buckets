@@ -44,77 +44,56 @@ class BankAccount extends AppModel {
   public function editTransaction($transaction)
   {
   	debug($transaction);
-  	$transactionBefore = $this->Transaction->read(null,$transaction['Transaction']['id']);
-  	debug($transactionBefore);
+  	if ($this->Transaction->saveAssociated($transaction))
+  	{
+  		return $this->reprocessTransactions($transaction['Transaction']['bank_account_id']);
+  	}
+  	echo "\nedit";
   	exit();
+  	
+  	$fields = array('Transaction.id','Transaction.date');
+  	$conditions = array('Transaction.id' => $transaction['Transaction']['id']);
+  	$contain = array(
+  			'PreviousTransaction' => array('fields' => array('PreviousTransaction.id','PreviousTransaction.bank_account_after','PreviousTransaction.bank_account_id','PreviousTransaction.date')) 
+  	);
+  	$transactionBefore = $this->Transaction->find('first',compact('fields','conditions','contain'));
+  	debug($transactionBefore);
+  	$bankAccountId = $transaction['Transaction']['bank_account_id'];
+  	if (!$this->Transaction->saveAssociated($transaction))
+  	{
+  		return false;
+  	}
   	$dateBefore = date_create($transactionBefore['Transaction']['date']);
   	$transactionDate = $transaction['Transaction']['date']['year'] . '-' . $transaction['Transaction']['date']['month'] . '-' . $transaction['Transaction']['date']['day'];
   	$dateAfter = date_create($transactionDate);
   	debug($dateBefore);
   	debug($dateAfter);
-  	$bankAccountBefore = 0;
-  	if ($this->processTransactionsAfter($transaction['Transaction']['bank_account_id'], $transactionDate, $bankAccountBefore))
+  	if ($dateBefore < $dateAfter)
   	{
-  		if ($dateBefore < $dateAfter)
-  		{
-  			// save new transaction and then process transactions after what it was before
-  			return $this->processTransactionsAfter($transactionBefore);
-  		}
-  		else
-  		{
-  			//return $this->processTransactionsAfter($transaction);
-  			return $this->addTransaction($transaction);
-  		}
+  		$previousTransactionId = $transactionBefore['Transaction']['previous_transaction_id'];
+  		$bankAccountBefore = !empty($transactionBefore['PreviousTransaction']['bank_account_after']) ? $transactionBefore['PreviousTransaction']['bank_account_after'] : 0;
+  		$date = !empty($transactionBefore['PreviousTransaction']['date']) ? $transactionBefore['PreviousTransaction']['date'] : $transactionBefore['Transaction']['date'];
+  		debug($previousTransactionId);
+  		debug($date);
+  		debug($bankAccountBefore);
+  		$this->processTransactionsAfter($bankAccountId, $previousTransactionId, $date, $bankAccountBefore);
   	}
+  	else
+  	{
+  		$fields = array('Transaction.id','Transaction.date','Transaction.previous_transaction_id','Transaction.bank_account_after');
+  		$conditions = array("Transaction.date <= '{$transactionDate}'","Transaction.id !={$transaction['Transaction']['id']}");
+  		$order = array('Transaction.date' => 'DESC', 'Transaction.created' => 'DESC');
+  		$transactionBefore = $this->Transaction->find('first',compact('fields','conditions','order'));
+  		debug($transactionBefore);
+  		$previousTransactionId = $transactionBefore['Transaction']['id'];
+  		$bankAccountBefore = !empty($transactionBefore['Transaction']['bank_account_after']) ? $transactionBefore['Transaction']['bank_account_after'] : 0;
+  		debug($previousTransactionId);
+  		debug($bankAccountBefore);
+  		$this->processTransactionsAfter($bankAccountId, $previousTransactionId, $transactionDate, $bankAccountBefore);
+  	}
+  	echo "wtf";
+  	exit();
   	return false;
-  }
-  
-  public function processTransactionsAfter($bankAccountId, $previousTransactionId, $transactionDate, $bankAccountBefore)
-  {
-  	//$transactionDate = $transaction['Transaction']['date']['year'] . '-' . $transaction['Transaction']['date']['month'] . '-' . $transaction['Transaction']['date']['day'];
-  	$fields = array('BankAccount.id','BankAccount.account_id','BankAccount.current_balance','BankAccount.unallocated_balance');
-  	//$bankAccountId = $transaction['Transaction']['bank_account_id'];
-  	$conditions = array('BankAccount.id' => $bankAccountId);
-  	$contain = array(
-  			'Account' => array('fields' => array('Account.unallocated_bucket_id')),
-  			'Transaction' => array(
-  					'fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.amount','Transaction.bank_account_after'),
-  					'conditions' => array("Transaction.date > '$transactionDate'"),
-  					'order' => array('Transaction.date' => 'ASC', 'Transaction.created' => 'ASC')
-  			)
-  	);
-  	$bankAccount = $this->find('first',compact('fields','conditions','contain'));
-  	debug($bankAccount);
-  	if (!empty($bankAccount['Transaction']))
-  	{
-  		//$bankAccountBefore = $transaction['Transaction']['bank_account_after'];
-  		foreach ($bankAccount['Transaction'] as &$transactionAfter)
-  		{
-  			$transactionAfter['bank_account_before'] = $bankAccountBefore;
-  			$transactionAfter['previous_transaction_id'] = $previousTransactionId;
-  			switch ($transactionAfter['transaction_type_id'])
-  			{
-  				case Transaction::DEPOSIT:
-  					{
-  						$transactionAfter['bank_account_after'] = $bankAccountBefore + $transactionAfter['amount'];
-  						break;
-  					}
-  				case Transaction::PURCHASE:
-  					{
-  						$transactionAfter['bank_account_after'] = $bankAccountBefore - $transactionAfter['amount'];
-  						break;
-  					}
-  			}
-  			$previousTransactionId = $transactionAfter['id'];
-  			$bankAccountBefore = $transactionAfter['bank_account_after'];
-  			$bankAccount['BankAccount']['current_balance'] = $bankAccountBefore;
-  			debug($bankAccount);
-  		}
-  		debug($bankAccount);
-  		$this->id = $bankAccount['BankAccount']['id'];
-  		return ($this->saveField('current_balance',$bankAccount['BankAccount']['current_balance']) && $this->Transaction->saveAll($bankAccount['Transaction'])); 
-  	}
-  	return true;
   }
   
   public function addTransaction($transaction)
@@ -184,4 +163,140 @@ class BankAccount extends AppModel {
   	return false;
   }
   
+  public function processTransactionsAfter($bankAccountId, $previousTransactionId, $transactionDate, $bankAccountBefore)
+  {
+  	$fields = array('BankAccount.id','BankAccount.account_id','BankAccount.current_balance','BankAccount.unallocated_balance');
+  	$conditions = array('BankAccount.id' => $bankAccountId);
+  	$contain = array(
+  			'Account' => array('fields' => array('Account.unallocated_bucket_id')),
+  			'Transaction' => array(
+  					'fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.amount','Transaction.bank_account_after'),
+  					//'conditions' => array("Transaction.date > '$transactionDate'"),
+  					//'conditions' => array("Transaction.id > $previousTransactionId"),
+  					'order' => array('Transaction.date' => 'ASC', 'Transaction.created' => 'ASC')
+  			)
+  	);
+  	if (!empty($previousTransactionId))
+  	{
+  		$contain['Transaction']['conditions'] = array("Transaction.id > $previousTransactionId");
+  	}
+  	$bankAccount = $this->find('first',compact('fields','conditions','contain'));
+  	debug($bankAccount);
+  	if (!empty($bankAccount['Transaction']))
+  	{
+  		foreach ($bankAccount['Transaction'] as &$transactionAfter)
+  		{
+  			$transactionAfter['bank_account_before'] = $bankAccountBefore;
+  			$transactionAfter['previous_transaction_id'] = $previousTransactionId;
+  			switch ($transactionAfter['transaction_type_id'])
+  			{
+  				case Transaction::DEPOSIT:
+  					{
+  						$transactionAfter['bank_account_after'] = $bankAccountBefore + $transactionAfter['amount'];
+  						break;
+  					}
+  				case Transaction::PURCHASE:
+  					{
+  						$transactionAfter['bank_account_after'] = $bankAccountBefore - $transactionAfter['amount'];
+  						break;
+  					}
+  			}
+  			$previousTransactionId = $transactionAfter['id'];
+  			$bankAccountBefore = $transactionAfter['bank_account_after'];
+  			$bankAccount['BankAccount']['current_balance'] = $bankAccountBefore;
+  			debug($bankAccount);
+  		}
+  		debug($bankAccount);
+  		$this->id = $bankAccount['BankAccount']['id'];
+  		return ($this->saveField('current_balance',$bankAccount['BankAccount']['current_balance']) && $this->Transaction->saveAll($bankAccount['Transaction'])); 
+  	}
+  	return true;
+  }
+  
+  private function reprocessTransactions($bankAccountId)
+  {
+  	$fields = array('BankAccount.id','BankAccount.account_id','BankAccount.opening_balance','BankAccount.current_balance');
+  	$conditions = array('BankAccount.id' => $bankAccountId);
+  	$contain = array(
+  			'Transaction' => array(
+  					'fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.bank_account_before','Transaction.amount','Transaction.bank_account_after'),
+  					'order' => array('Transaction.date' => 'ASC',' Transaction.created' => 'ASC'),
+  			)
+  	);
+  	$bankAccount = $this->find('first',compact('fields','conditions','contain'));
+  	debug($bankAccount);
+  	$bankAccountBefore = $bankAccount['BankAccount']['opening_balance'];
+  	$previousTransactionId = null;
+  	foreach ($bankAccount['Transaction'] as &$transaction)
+  	{
+  		$transaction['bank_account_before'] = $bankAccountBefore;
+  		$transaction['previous_transaction_id'] = $previousTransactionId;
+  		switch ($transaction['transaction_type_id'])
+  		{
+  			case Transaction::DEPOSIT:
+  				{
+  					$transaction['bank_account_after'] = $bankAccountBefore + $transaction['amount'];
+  					break;
+  				}
+  			case Transaction::PURCHASE:
+  				{
+  					$transaction['bank_account_after'] = $bankAccountBefore - $transaction['amount'];
+  					break;
+  				}
+  		}
+  		$previousTransactionId = $transaction['id'];
+  		$bankAccountBefore = $transaction['bank_account_after'];
+  		$bankAccount['BankAccount']['current_balance'] = $bankAccountBefore;
+  		debug($bankAccount);
+  	}
+  	debug($bankAccount);
+  	$this->id = $bankAccount['BankAccount']['id'];
+  	if ($this->saveField('current_balance',$bankAccount['BankAccount']['current_balance']) && $this->Transaction->saveAll($bankAccount['Transaction']))
+  	{
+  		return $this->reprocessBucketsForAccount($bankAccount['BankAccount']['account_id']);
+  	}
+  	return false;
+  }
+  
+  private function reprocessBucketsForAccount($accountId)
+  {
+  	$fields = array('Bucket.id','Bucket.opening_balance','Bucket.available_balance','Bucket.actual_balance');
+  	$conditions = array('Bucket.account_id' => $accountId);
+  	$contain = array(
+  			'TransactionEntry' => array(
+  					'fields' => array('TransactionEntry.id','TransactionEntry.amount'),
+  					//'order' => array('TransactionEntry.date' => 'ASC', 'TransactionEntry.created' => 'ASC')
+  					'Transaction' => array('fields' => array('Transaction.transaction_type_id'))
+  			)
+  	);
+  	$buckets = $this->Transaction->TransactionEntry->Bucket->find('all',compact('fields','conditions','contain'));
+  	debug($buckets);
+  	foreach ($buckets as &$bucket)
+  	{
+  		$availableBalance = $actualBalance = $bucket['Bucket']['opening_balance'];
+  		foreach ($bucket['TransactionEntry'] as $transactionEntry)
+  		{
+  			$amount = $transactionEntry['amount'];
+  			switch($transactionEntry['Transaction']['transaction_type_id'])
+  			{
+  				case Transaction::DEPOSIT:
+  					{
+  						$availableBalance += $amount;
+  						$actualBalance += $amount;
+  						break;
+  					}
+  				case Transaction::PURCHASE:
+  					{
+  						$availableBalance -= $amount;
+  						$actualBalance -= $amount;
+  						break;
+  					}
+  			}
+  		}
+  		$bucket['Bucket']['available_balance'] = $availableBalance;
+  		$bucket['Bucket']['actual_balance'] = $actualBalance;
+  	}
+  	debug($buckets);
+  	return $this->Transaction->TransactionEntry->Bucket->saveAll($buckets);
+  }
 }

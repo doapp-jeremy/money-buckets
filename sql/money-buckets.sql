@@ -229,6 +229,7 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transaction_entries` (
   `transaction_id` INT NOT NULL ,
   `bucket_id` INT NOT NULL ,
   `user_id` INT NOT NULL ,
+  `date` DATE NOT NULL ,
   `amount` DECIMAL(20,2) NULL DEFAULT 0 ,
   `created` DATETIME NULL ,
   `modified` DATETIME NULL ,

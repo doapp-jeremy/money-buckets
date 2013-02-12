@@ -60,14 +60,19 @@ echo $this->Form->create('Transaction', array(
       'label'=>array('text'=>__('Date'),'class'=>'control-label'),
       'div'=>array('class'=>'control-group','style'=>'display: block; margin-left: 15px;')
   ));
-  
 	$i = 0;
 	foreach ($buckets as $bucket)
-	{	
-	  echo $this->Form->input("TransactionEntry.{$i}.user_id", array('type' => 'hidden','value' => $user['id']));
+	{
+	  echo $this->Form->input("TransactionEntry.{$i}.id", array('type' => 'hidden','value' => $user['id']));
 	  echo $this->Form->input("TransactionEntry.{$i}.bucket_id", array('type' => 'hidden','value' => $bucket['Bucket']['id']));
-	  $value = 0;
 	  echo $this->Form->input("TransactionEntry.{$i}.amount", array('label'=>array('text'=>__($bucket['Bucket']['name'] . ' Amount'),'class'=>'control-label')));
+	  foreach ($this->request->data['TransactionEntry'] as $transactionEntry)
+	  {
+	    if ($transactionEntry['bucket_id'] == $bucket['Bucket']['id'])
+	    {
+	      echo $this->Form->input("TransactionEntry.{$i}.id", array('type' => 'hidden','value' => $transactionEntry['id']));
+	    }
+	  }
 	  $i++;
 	}
 	?>

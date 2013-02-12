@@ -12,24 +12,22 @@ class Bucket extends AppModel {
       ),
   );
   
-//   public $hasAndBelongsToMany = array(
-//       'Account' => array(
-//           'className' => 'Account',
-//           'joinTable' => 'accounts_buckets',
-//           'foreignKey' => 'bucket_id',
-//           'associationForeignKey' => 'account_id',
-//           'unique' => 'keepExisting',
-//           'conditions' => '',
-//           'fields' => '',
-//           'order' => '',
-//           'limit' => '',
-//           'offset' => '',
-//           'finderQuery' => '',
-//           'deleteQuery' => '',
-//           'insertQuery' => ''
-//       )
-//   );
-  
+  public $hasMany = array(
+  		'TransactionEntry' => array(
+  				'className' => 'TransactionEntry',
+  				'foreignKey' => 'bucket_id',
+  				'dependent' => true,
+  				'conditions' => '',
+  				'fields' => '',
+  				'order' => '',
+  				'limit' => '',
+  				'offset' => '',
+  				'exclusive' => '',
+  				'finderQuery' => '',
+  				'counterQuery' => ''
+  		)
+  );
+    
   public function getBucketsForAccounts($accountIds)
   {
     $conditions = array($this->alias . '.account_id' => $accountIds);

@@ -9,7 +9,7 @@ class Transaction extends AppModel {
   
   public $belongsTo = array(
       'PreviousTransaction' => array(
-          'className' => 'PreviousTransaction',
+          'className' => 'Transaction',
           'foreignKey' => 'previous_transaction_id',
           'conditions' => '',
           'fields' => '',
