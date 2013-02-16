@@ -62,6 +62,29 @@ class AppController extends Controller {
   	return parent::beforeRender();
   }
   
+  const FRIEND_LIST = 'friends';
+  protected function getFriends($refresh = false)
+  {
+    if ($refresh || (null === ($friendList = $this->Session->read(self::FRIEND_LIST))))
+    {
+      $user = $this->Auth->user();
+      debug($user);
+      App::uses('FB', 'Facebook.Lib');
+      if (!empty($user['facebook_id']))
+      {
+        $friends = FB::api("/{$user['facebook_id']}/friends");
+        debug($friends);
+        $friendList = array();
+        foreach ($friends['data'] as $friend)
+        {
+          $friendList[$friend['id']] = $friend['name'];
+        }
+        $this->Session->write(self::FRIEND_LIST, $friendList);
+      }
+    }
+    return $friendList;
+  }
+  
   const ACCOUNT_LIST = 'account_list';
   protected function getAccountList($refresh = false, $redirectIfEmpty = true)
   {
