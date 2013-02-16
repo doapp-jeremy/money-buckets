@@ -14,7 +14,7 @@ echo $this->Form->create('Account', array(
 ?>
 <fieldset id="accountUserFieldset">
   <?php
-	echo $this->Form->input("User.0.id", array(
+	echo $this->Form->input("Friend.id", array(
 			'label'=>array('text'=>__('Friend'),'class'=>'control-label'),
 	    'options' => $friendList,
 	    'class'=>'input-xlarge',
@@ -32,7 +32,7 @@ echo $this->Form->create('Account', array(
 	  $accountIds = array_keys($accountList);
 	  $accountOptions['value'] = $accountIds[0];
 	}
-	echo $this->Form->input("account_id", $accountOptions);
+	echo $this->Form->input("id", $accountOptions);
 	?>	
 	<div class="form-actions">
 	  <button type="submit" class="btn btn-primary">Add Friend To Account</button>

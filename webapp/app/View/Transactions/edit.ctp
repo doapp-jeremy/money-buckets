@@ -56,6 +56,9 @@ echo $this->Form->create('Transaction', array(
 			'label'=>array('text'=>__('Amount'),'class'=>'control-label'),
 			'required',			//Set HTML5 required attribure
 	));
+  echo $this->Form->input("notes", array(
+			'label'=>array('text'=>__('Notes'),'class'=>'control-label'),
+	));	
   echo $this->Form->input("date", array(
       'label'=>array('text'=>__('Date'),'class'=>'control-label'),
       'div'=>array('class'=>'control-group','style'=>'display: block; margin-left: 15px;')
@@ -65,14 +68,16 @@ echo $this->Form->create('Transaction', array(
 	{
 	  echo $this->Form->input("TransactionEntry.{$i}.id", array('type' => 'hidden','value' => $user['id']));
 	  echo $this->Form->input("TransactionEntry.{$i}.bucket_id", array('type' => 'hidden','value' => $bucket['Bucket']['id']));
-	  echo $this->Form->input("TransactionEntry.{$i}.amount", array('label'=>array('text'=>__($bucket['Bucket']['name'] . ' Amount'),'class'=>'control-label')));
+	  $amount = 0;
 	  foreach ($this->request->data['TransactionEntry'] as $transactionEntry)
 	  {
 	    if ($transactionEntry['bucket_id'] == $bucket['Bucket']['id'])
 	    {
 	      echo $this->Form->input("TransactionEntry.{$i}.id", array('type' => 'hidden','value' => $transactionEntry['id']));
+	      $amount = $transactionEntry['amount'];
 	    }
 	  }
+		echo $this->Form->input("TransactionEntry.{$i}.amount", array('value' => $amount, 'label'=>array('text'=>__($bucket['Bucket']['name'] . ' Amount'),'class'=>'control-label')));
 	  $i++;
 	}
 	?>

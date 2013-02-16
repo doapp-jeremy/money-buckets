@@ -16,7 +16,7 @@ class Account extends AppModel {
       'Bucket' => array(
           'className' => 'Bucket',
           'foreignKey' => 'account_id',
-          'dependent' => true,
+          'dependent' => false,
           'conditions' => '',
           'fields' => '',
           'order' => '',
@@ -29,23 +29,23 @@ class Account extends AppModel {
   );
   
   
-//   public $hasAndBelongsToMany = array(
-//       'Bucket' => array(
-//           'className' => 'Bucket',
-//           'joinTable' => 'accounts_buckets',
-//           'foreignKey' => 'account_id',
-//           'associationForeignKey' => 'bucket_id',
-//           'unique' => 'keepExisting',
-//           'conditions' => '',
-//           'fields' => '',
-//           'order' => '',
-//           'limit' => '',
-//           'offset' => '',
-//           'finderQuery' => '',
-//           'deleteQuery' => '',
-//           'insertQuery' => ''
-//       )
-//   );
+  public $hasAndBelongsToMany = array(
+      'Friend' => array(
+          'className' => 'User',
+          'joinTable' => 'accounts_users',
+          'foreignKey' => 'account_id',
+          'associationForeignKey' => 'facebook_id',
+          'unique' => 'keepExisting',
+          'conditions' => '',
+          'fields' => '',
+          'order' => '',
+          'limit' => '',
+          'offset' => '',
+          'finderQuery' => '',
+          'deleteQuery' => '',
+          'insertQuery' => ''
+      )
+  );
   
   
 //   public function afterSave($created)

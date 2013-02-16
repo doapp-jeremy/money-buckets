@@ -49,6 +49,9 @@ echo $this->Form->create('Transaction', array(
   echo $this->Form->input("label", array(
 			'label'=>array('text'=>__('Label'),'class'=>'control-label'),
 	));	
+  echo $this->Form->input("notes", array(
+			'label'=>array('text'=>__('Notes'),'class'=>'control-label'),
+	));	
   echo $this->Form->input("amount", array(
 			'label'=>array('text'=>__('Amount'),'class'=>'control-label'),
 			'required',			//Set HTML5 required attribure
@@ -64,6 +67,8 @@ echo $this->Form->create('Transaction', array(
 	  echo $this->Form->input("TransactionEntry.{$i}.user_id", array('type' => 'hidden','value' => $user['id']));
 	  echo $this->Form->input("TransactionEntry.{$i}.bucket_id", array('type' => 'hidden','value' => $bucket['Bucket']['id']));
 	  echo $this->Form->input("TransactionEntry.{$i}.amount", array('value' => 0,'label'=>array('text'=>__($bucket['Bucket']['name'] . ' Amount'),'class'=>'control-label')));
+	  //echo $this->Form->input("TransactionEntry.{$i}.label", array('label'=>array('text'=>__('Label'),'class'=>'control-label'),'div'=>array('class'=>'control-group','style'=>'display: block; margin-left: 15px;')));
+	  //echo $this->Form->input("TransactionEntry.{$i}.notes", array('label'=>array('text'=>__('Notes'),'class'=>'control-label'),'div'=>array('class'=>'control-group','style'=>'display: block; margin-left: 15px;')));
 	  $i++;
 	}
 	?>

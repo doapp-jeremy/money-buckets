@@ -63,8 +63,10 @@ class TransactionsController extends AppController {
 		
 		if (!empty($this->request->data))
 		{
-			//debug($this->request->data);exit();
+			debug($this->request->data);
+			
 			$this->loadModel('BankAccount');
+
 			if ($this->BankAccount->addTransaction($this->request->data))
 			{
 				$this->Session->setFlash("Transaction added!",'flash_success');

@@ -44,10 +44,11 @@ class AccountsController extends AppController {
 	  $friendList = $this->getFriends();
 	  if (!empty($this->request->data))
 	  {
+	    debug($this->request->data);
 	    $this->loadModel('Account');
-	    if ($this->Account->saveAssociated($this->request->data))
+	    if ($this->Account->save($this->request->data))
 	    {
-	      $this->Session->setFlash("Added {$friendList[$this->request->data['AccountUser']['user_id']]} to your account",'flash_success');
+	      $this->Session->setFlash("Added {$friendList[$this->request->data['Friend']['id']]} to your account",'flash_success');
 	      $this->redirect(array('controller' => 'buckets','action'=>'index'));
 	    }
 	    else

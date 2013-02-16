@@ -83,18 +83,14 @@ DROP TABLE IF EXISTS `moneybuckets`.`accounts_users` ;
 
 CREATE  TABLE IF NOT EXISTS `moneybuckets`.`accounts_users` (
   `account_id` INT NOT NULL ,
-  `user_id` INT NOT NULL ,
-  PRIMARY KEY (`account_id`, `user_id`) ,
+  `user_id` INT NULL ,
+  `facebook_id` INT NULL ,
+  PRIMARY KEY (`account_id`, `user_id`, `facebook_id`) ,
   INDEX `fk_accounts_users_account` (`account_id` ASC) ,
-  INDEX `fk_accounts_users_user` (`user_id` ASC) ,
+  INDEX `facebook_id` (`facebook_id` ASC) ,
   CONSTRAINT `fk_accounts_users_account`
     FOREIGN KEY (`account_id` )
     REFERENCES `moneybuckets`.`accounts` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_accounts_users_user`
-    FOREIGN KEY (`user_id` )
-    REFERENCES `moneybuckets`.`users` (`id` )
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -177,6 +173,7 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transactions` (
   `previous_transaction_id` INT NULL ,
   `date` DATE NOT NULL ,
   `label` VARCHAR(255) NULL ,
+  `notes` TEXT NULL ,
   `bank_account_before` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `bank_account_after` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
@@ -230,7 +227,11 @@ CREATE  TABLE IF NOT EXISTS `moneybuckets`.`transaction_entries` (
   `bucket_id` INT NOT NULL ,
   `user_id` INT NOT NULL ,
   `date` DATE NOT NULL ,
-  `amount` DECIMAL(20,2) NULL DEFAULT 0 ,
+  `label` VARCHAR(255) NULL ,
+  `notes` TEXT NULL ,
+  `bucket_before` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
+  `amount` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
+  `bucket_after` DECIMAL(20,2) NOT NULL DEFAULT 0 ,
   `created` DATETIME NULL ,
   `modified` DATETIME NULL ,
   PRIMARY KEY (`id`) ,
@@ -287,6 +288,15 @@ COMMIT;
 START TRANSACTION;
 USE `moneybuckets`;
 INSERT INTO `moneybuckets`.`accounts` (`id`, `user_id`, `name`, `unallocated_bucket_id`, `created`, `modified`) VALUES (1, 1, 'Main Account', 1, NULL, NULL);
+
+COMMIT;
+
+-- -----------------------------------------------------
+-- Data for table `moneybuckets`.`accounts_users`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `moneybuckets`;
+INSERT INTO `moneybuckets`.`accounts_users` (`account_id`, `user_id`, `facebook_id`) VALUES (1, 0, 668265810);
 
 COMMIT;
 
