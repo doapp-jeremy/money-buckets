@@ -29,10 +29,6 @@ $this->AssetCompress->autoInclude = false;
   	<link rel="stylesheet" href="/css/cake.debug.css">
   <?php endif; ?>
   
-  <? // TODO: remove once asset compress is working ?>
-  <link rel="stylesheet" href="/css/common/common.css">
-  <link rel="stylesheet" href="/css/common/bootstrap.css">
-  
   
 	<?php
 	  if (false):
@@ -53,6 +49,10 @@ $this->AssetCompress->autoInclude = false;
 	<link rel="stylesheet" type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/themes/ui-darkness/jquery-ui.css">
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 	<?php endif;?>
+  <? // TODO: remove once asset compress is working ?>
+  <link rel="stylesheet" href="/css/common/common.css">
+  <link rel="stylesheet" href="/css/common/bootstrap.css">
+  
 	<?php 
 		echo $this->AssetCompress->css('common.css');
 		echo $this->fetch('viewIncludedBuildCss');

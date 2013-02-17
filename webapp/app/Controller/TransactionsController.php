@@ -11,10 +11,18 @@ class TransactionsController extends AppController {
 	  header('Content-type: application/json');
 	  
 	  $accountIds = $this->getAccountIds();
-	  $debug = array('accounts' => $accountIds); 
 	  $this->loadModel('BankAccount');
-	  $bank_accounts = $this->BankAccount->getBankAccountsForAccounts($accountIds);
-	  echo json_encode(compact('debug','bank_accounts'));
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds,array('BankAccount.id'));
+		$bankAccountIds = Set::extract('/BankAccount/id',$bankAccounts);
+		
+		$fields = array('Transaction.bank_account_id','Transaction.transaction_type_id','Transaction.date','Transaction.label','Transaction.amount','Transaction.bank_account_after','Transaction.unallocated_amount');
+		$contain = array(
+		    'BankAccount' => array('fields' => array('BankAccount.name'))
+		);
+		$transactions = $this->BankAccount->Transaction->getTransactionsForBankAccount($bankAccountIds,$fields,$contain);
+		
+		$debug = array('bank_account_ids' => $bankAccountIds);
+		echo json_encode(compact('debug','transactions'));
 	  exit();
 	}
 	

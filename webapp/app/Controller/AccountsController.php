@@ -9,6 +9,19 @@ class AccountsController extends AppController {
 	{
 	  return true;
 	}
+	
+	public function home()
+	{
+	  $accountIds = $this->getAccountIds();
+	  $this->loadModel('BankAccount');
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds,array('BankAccount.id','BankAccount.current_balance','BankAccount.unallocated_balance'));
+		$bankAccountIds = Set::extract('/BankAccount/id',$bankAccounts);
+		
+		$this->loadModel('Bucket');
+		$buckets = $this->Bucket->getBucketsForAccounts($accountIds, array('Bucket.id','Bucket.name','Bucket.available_balance'));
+
+		$this->set(compact('bankAccounts','buckets'));
+	}
 
 	public function index() {
 	  $accountList = $this->getAccountList();

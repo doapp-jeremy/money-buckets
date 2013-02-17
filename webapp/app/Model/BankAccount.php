@@ -29,10 +29,10 @@ class BankAccount extends AppModel {
   );
   
   
-  public function getBankAccountsForAccounts($accountIds)
+  public function getBankAccountsForAccounts($accountIds, $fields = array(), $contain = array())
   {
     $conditions = array($this->alias . '.account_id' => $accountIds);
-    return $this->find('all',compact('conditions'));
+    return $this->find('all',compact('fields','conditions','contain'));
   }
   
   public function getBankAccountListForAccounts($accountIds)

@@ -104,4 +104,10 @@ class Transaction extends AppModel {
   		$this->saveField('unallocated_amount',$bankAccount['Transaction']['unallocated_amount']);
   	}
   }
+  
+  public function getTransactionsForBankAccount($bankAccountIds, $fields = array(), $contain = array())
+  {
+    $conditions = array('Transaction.bank_account_id' => $bankAccountIds);
+    return $this->find('all',compact('fields','conditions','contain'));
+  }
 }
