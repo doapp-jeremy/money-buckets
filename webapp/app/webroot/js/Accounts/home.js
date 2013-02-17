@@ -1,17 +1,110 @@
 var oTable;
+var bucketTables = {};
 var timeoutObj;
 var mainSelectElement = '#mainSelect';
+var loaded = {};
+var baseURL = 'http://dev.moneybuckets.myezteam.com';
 
 $(function() {
+  for (var bucketId = 1; bucketId < 5; bucketId++)
+  {
+  var theTable = $('#bucketTable' + bucketId).dataTable( {
+    "sDom": "<'row'<'span12'f>r><'row'<'span12 adActions'>>t<'row'<'span6'li><'span6'p>>",
+    "sPaginationType": "bootstrap",
+    'aaSorting':[[0, 'desc']],
+    "oLanguage": {
+      "sLengthMenu": "_MENU_ records per page",
+      "sEmptyTable": "No transactions",
+    },
+    "iDisplayLength":10,
+    "aoColumns": [
+                {
+                    "sTitle": "Date",
+                    "mData": "date",
+                    "sWidth": "100px",
+                    "mRender": function( data, type, full ) {
+                      var theName = jQuery('<div />').text(data).html();
+                      return theName;
+                    },
+                },
+                {
+                  "sTitle": "Label",
+                  "mData": "label",
+                  "sWidth": "200px",
+                  "mRender": function( data, type, full ) {
+                    var theName = jQuery('<div />').text(data).html();
+                    return theName;
+                  },
+                },
+                {
+                  "sTitle": "Increase",
+                  "mData": "amount",
+                  "mRender": function( data, type, full ) {
+                    if (full.Transaction.transaction_type_id == 2)
+                    {
+                      return data;
+                    }
+                    return '';
+                  },
+                  "sType": "formatted-num"
+                },
+                {
+                  "sTitle": "Decrease",
+                  "mData": "amount",
+                  "mRender": function( data, type, full ) {
+                    if (full.Transaction.transaction_type_id == 1)
+                    {
+                      return data;
+                    }
+                    return '';
+                  },
+                  "sType": "formatted-num"
+                },
+                {
+                  "sTitle": "Balance",
+                  "mData": "bucket_after",
+                  "mRender": function( data, type, full ) {
+                    return data;
+                    // TODO: implement formatNumber return formatNumber(data);
+                  },
+                  "sType": "formatted-num"
+                }
+              ]
+      ,
+        "fnFooterCallback": function ( nRow, aaData, iStart, iEnd, aiDisplay ) {
+          // init search box
+          //initDatatableSearchBox($('#' + $(this).attr('id') + '_wrapper'));
+        }
+  } );  
+  bucketTables[bucketId] = theTable;
+  }
+  
   $('#myTab a').click(function (e) {
     e.preventDefault();
     $(this).tab('show');
-  });  
- $('#myTab a:first').tab('show');
- oTable = $('#listTable').dataTable( {
+  });
+  
+  $('a[data-toggle="tab"]').on('show', function (e) {
+    e.target // activated tab
+    if (loaded[e.target])
+    {
+      return;
+    }
+    var url = e.target;
+    loaded[e.target] = true;
+    var pattern=/#(.)+/g //use regex to get anchor(==selector)
+    var re = new RegExp(pattern);
+    var bucketId = re.exec(e.target.toString())[1];
+    console.log(bucketId);
+    getBucketTransactions(bucketId);
+  });
+  
+  $('#myTab a:first').tab('show');
+  
+  oTable = $('#listTable').dataTable( {
     "sDom": "<'row'<'span12'f>r><'row'<'span12 adActions'>>t<'row'<'span6'li><'span6'p>>",
     "sPaginationType": "bootstrap",
-    'aaSorting':[[0, 'asc']],
+    'aaSorting':[[1, 'desc']],
     "oLanguage": {
       "sLengthMenu": "_MENU_ records per page",
       "sEmptyTable": "No transactions",
@@ -87,7 +180,7 @@ $(function() {
   } );  
   
   getData();
-  
+
 });
 
 /**
@@ -120,6 +213,41 @@ function getData() {
       }
       
       oTable.fnAddData(data.transactions);
+    })
+      .fail(function(jqXHR, textStatus, errorThrown) {
+        alert("Error getting data. Msg: " + textStatus + " ResponseTxt: " + jqXHR.responseText);
+      })
+      .always(function() { 
+        
+      });       
+}
+
+function getBucketTransactions(bucketId) {
+  data = {
+      consistent_read: "false"
+  };
+  theUrl = '/buckets/get_transactions/' + bucketId;
+  var theTable = bucketTables[bucketId];
+  theTable.fnClearTable();
+  $(".dataTables_empty").html('<img width="16" height="16" src="http://d3er7671q71co0.cloudfront.net/img/spinner.gif" /> <b>Loading data...</b>');
+  
+  var jqxhr = $.ajax({
+      url: theUrl,
+      type: "POST",
+      data: JSON.stringify(data),
+      cache: false,
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8"
+    })
+    .done(function(data, textStatus, jqXHR) {
+      if(!data.bucket.TransactionEntry){
+        alert("Error getting data. Please re-load the page and try again. Code: " + code + " ResponseTxt: " + jqXHR.responseText + ".Data: \n" + data);
+      }
+      if(data.bucket.TransactionEntry.length == 0) {
+        theTable.fnClearTable();
+      }
+      
+      theTable.fnAddData(data.bucket.TransactionEntry);
     })
       .fail(function(jqXHR, textStatus, errorThrown) {
         alert("Error getting data. Msg: " + textStatus + " ResponseTxt: " + jqXHR.responseText);

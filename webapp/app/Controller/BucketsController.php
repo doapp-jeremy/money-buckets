@@ -5,6 +5,28 @@ class BucketsController extends AppController {
 
 	public $uses = array();
 	
+	public function get_transactions($bucketId)
+	{
+	  $this->autoRender = false;	//Don't even hit a view/layout
+	  header('HTTP/1.0 200 OK');
+	  header('Content-type: application/json');
+
+	  $accountIds = $this->getAccountIds();
+	  $debug = array('accounts' => $accountIds,'bucket' => $bucketId);
+	  $this->loadModel('Bucket');
+	  $buckets = $this->Bucket->getBucketsForAccounts($accountIds,array('Bucket.id'));
+	  $bucketIds = Set::extract('/Bucket/id',$buckets);
+	  if (!in_array($bucketId,$bucketIds))
+	  {
+	    header('HTTP/1.0 400 OK');
+	    echo json_encode(array('status' => 'error','message' => 'Not authorized to access bucket'));
+	    exit();
+	  }
+	  $bucket = $this->Bucket->getTransactionEntries($bucketId);
+	  echo json_encode(compact('debug','bucket'));
+	  exit();
+	}
+	
 	public function index() {
 	  $accountList = $this->getAccountList();
 	  if (empty($accountList)) $this->redirect('/accounts/add');
