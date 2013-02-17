@@ -37,10 +37,6 @@ class UsersController extends AppController {
 	}
 		
 	public function login() {
-	  if($user = $this->Connect->registrationData()){
-	    debug($user);
-	    exit();
-	  }
 	}
 	
 	public function logout(){
