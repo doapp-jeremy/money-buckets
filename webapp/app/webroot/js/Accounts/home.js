@@ -30,7 +30,6 @@ $(function() {
                 {
                   "sTitle": "Label",
                   "mData": "label",
-                  "sWidth": "200px",
                   "mRender": function( data, type, full ) {
                     var theName = jQuery('<div />').text(data).html();
                     return theName;
@@ -39,6 +38,7 @@ $(function() {
                 {
                   "sTitle": "Increase",
                   "mData": "amount",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     if (full.Transaction.transaction_type_id == 2)
                     {
@@ -51,6 +51,7 @@ $(function() {
                 {
                   "sTitle": "Decrease",
                   "mData": "amount",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     if (full.Transaction.transaction_type_id == 1)
                     {
@@ -63,6 +64,7 @@ $(function() {
                 {
                   "sTitle": "Balance",
                   "mData": "bucket_after",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     return data;
                     // TODO: implement formatNumber return formatNumber(data);
@@ -132,7 +134,6 @@ $(function() {
                 {
                   "sTitle": "Label",
                   "mData": "Transaction.label",
-                  "sWidth": "300px",
                   "mRender": function( data, type, full ) {
                     var theName = jQuery('<div />').text(data).html();
                     return theName;
@@ -141,6 +142,7 @@ $(function() {
                 {
                   "sTitle": "Increase",
                   "mData": "Transaction.amount",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     if (full.Transaction.transaction_type_id == 2)
                     {
@@ -153,6 +155,7 @@ $(function() {
                 {
                   "sTitle": "Decrease",
                   "mData": "Transaction.amount",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     if (full.Transaction.transaction_type_id == 1)
                     {
@@ -165,6 +168,7 @@ $(function() {
                 {
                   "sTitle": "Balance",
                   "mData": "Transaction.bank_account_after",
+                  "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     return data;
                     // TODO: implement formatNumber return formatNumber(data);
