@@ -46,11 +46,3 @@ echo $this->Form->create('BankAccount', array(
 	</div>
 </fieldset>
 <?php echo $this->Form->end();?>
-
-<h3>Your accounts</h3>
-
-<ul>
-<?php foreach($accountList as $accountId => $accountName):?>
-<li><?php echo $accountName?></li>
-<?php endforeach;?>
-</ul>

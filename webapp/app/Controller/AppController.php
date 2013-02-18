@@ -91,10 +91,10 @@ class AppController extends Controller {
     $accounts = array();
     if ($refresh || (null === ($accounts = $this->Session->read(self::ACCOUNT_LIST))))
     {
-      $this->loadModel('Account');
       if ($user = $this->Auth->user())
       {
-        $accounts = $this->Account->getAccountsForUser($user);
+        $this->loadModel('User');
+        $accounts = $this->User->getAccountsForUser($user);
         $this->Session->write(self::ACCOUNT_LIST, $accounts);
       }
     }
@@ -109,5 +109,11 @@ class AppController extends Controller {
   {
   	$accountList = $this->getAccountList($refresh, $redirectIfEmpty);
   	return array_keys($accountList);
+  }
+
+  protected function getAccountId($refresh = false, $redirectIfEmpty = true)
+  {
+  	$accountIds = $this->getAccountIds($refresh,$redirectIfEmpty);
+  	return $accountIds[0];
   }
 }

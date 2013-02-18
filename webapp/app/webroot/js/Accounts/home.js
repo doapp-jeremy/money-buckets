@@ -3,11 +3,11 @@ var bucketTables = {};
 var timeoutObj;
 var mainSelectElement = '#mainSelect';
 var loaded = {};
-var baseURL = 'http://dev.moneybuckets.myezteam.com';
 
 $(function() {
-  for (var bucketId = 1; bucketId < 5; bucketId++)
+  for (var i in bucketIds)
   {
+    var bucketId = bucketIds[i];
   var theTable = $('#bucketTable' + bucketId).dataTable( {
     "sDom": "<'row'<'span12'f>r><'row'<'span12 adActions'>>t<'row'<'span6'li><'span6'p>>",
     "sPaginationType": "bootstrap",
@@ -94,10 +94,10 @@ $(function() {
     }
     var url = e.target;
     loaded[e.target] = true;
-    var pattern=/#(.)+/g //use regex to get anchor(==selector)
+    var pattern=/#(.+)/g //use regex to get anchor(==selector)
     var re = new RegExp(pattern);
     var bucketId = re.exec(e.target.toString())[1];
-    console.log(bucketId);
+    if (bucketId == 'addTransaction') return;
     getBucketTransactions(bucketId);
   });
   
@@ -106,22 +106,13 @@ $(function() {
   oTable = $('#listTable').dataTable( {
     "sDom": "<'row'<'span12'f>r><'row'<'span12 adActions'>>t<'row'<'span6'li><'span6'p>>",
     "sPaginationType": "bootstrap",
-    'aaSorting':[[1, 'desc']],
+    'aaSorting':[[0, 'desc']],
     "oLanguage": {
       "sLengthMenu": "_MENU_ records per page",
       "sEmptyTable": "No transactions",
     },
     "iDisplayLength":10,
     "aoColumns": [
-                {
-                  "sTitle": "Bank Account",
-                  "mData": "BankAccount.name",
-                  "sWidth": "200px",
-                  "mRender": function( data, type, full ) {
-                    var theName = jQuery('<div />').text(data).html();
-                    return theName;
-                  },
-                },
                 {
                   "sTitle": "Date",
                   "mData": "Transaction.date",

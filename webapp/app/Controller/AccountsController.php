@@ -12,15 +12,27 @@ class AccountsController extends AppController {
 	
 	public function home()
 	{
-	  $accountIds = $this->getAccountIds();
+	  $accountId = $this->getAccountId();
 	  $this->loadModel('BankAccount');
-		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds,array('BankAccount.id','BankAccount.current_balance','BankAccount.unallocated_balance'));
-		$bankAccountIds = Set::extract('/BankAccount/id',$bankAccounts);
+		$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountId);
+		if (empty($bankAccountList))
+		{
+		  $this->Session->setFlash("Please add a bank account!",'flash_success');
+		  $this->redirect('/bank_accounts/add');
+		}
 		
 		$this->loadModel('Bucket');
-		$buckets = $this->Bucket->getBucketsForAccounts($accountIds, array('Bucket.id','Bucket.name','Bucket.available_balance'));
-
-		$this->set(compact('bankAccounts','buckets'));
+		$buckets = $this->Bucket->getBucketsForAccounts($accountId, array('Bucket.id','Bucket.name','Bucket.available_balance'));
+		$bucketIds = Set::extract('/Bucket/id',$buckets);
+		
+		$this->loadModel('TransactionType');
+		$transactionTypes = $this->TransactionType->find('list', array('order' => array('id' => 'ASC')));
+		$this->set(compact('user','userList','bankAccountList','buckets','transactionTypes'));
+		
+		$user = $this->Auth->user();
+		$userList = array($user['id'] => 'You');
+		
+		$this->set(compact('bankAccountList','buckets','bucketIds','user','userList','transactionTypes'));
 	}
 
 	public function index() {
@@ -57,12 +69,32 @@ class AccountsController extends AppController {
 	  $friendList = $this->getFriends();
 	  if (!empty($this->request->data))
 	  {
-	    debug($this->request->data);
 	    $this->loadModel('Account');
+	    debug($this->request->data);
+	    // see if user with this facebook id exists, it not create it
+	    $user = $this->Account->User->find('first',array('fields' => 'id','conditions' => array('User.facebook_id' => $this->request->data['User']['facebook_id'])));
+	    debug($user);
+	    if (empty($user['User']['id']))
+	    {
+	      $this->Account->User->create();
+	      $this->Account->User->createAccount = false;
+	      if ($this->Account->User->save(array('User' => array('facebook_id' => $this->request->data['User']['facebook_id']))))
+	      {
+	        $this->request->data['User']['id'] = $this->Account->User->getLastInsertID();
+	      }
+	    }
+	    else
+	    {
+	      $this->request->data['User']['id'] = $user['User']['id'];
+	    }
+	    $facebookId = $this->request->data['User']['facebook_id'];
+	    unset($this->request->data['User']['facebook_id']);
+	    debug($this->request->data['User']['id']);
+	    debug($this->request->data);
 	    if ($this->Account->save($this->request->data))
 	    {
-	      $this->Session->setFlash("Added {$friendList[$this->request->data['Friend']['id']]} to your account",'flash_success');
-	      $this->redirect(array('controller' => 'buckets','action'=>'index'));
+	      $this->Session->setFlash("Added {$friendList[$facebookId]} to your account",'flash_success');
+	      $this->redirect(array('controller' => 'accounts','action'=>'home'));
 	    }
 	    else
 	    {

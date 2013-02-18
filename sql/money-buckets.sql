@@ -13,12 +13,11 @@ DROP TABLE IF EXISTS `moneybuckets`.`users` ;
 
 CREATE  TABLE IF NOT EXISTS `moneybuckets`.`users` (
   `id` INT NOT NULL AUTO_INCREMENT ,
-  `email` VARCHAR(255) NOT NULL ,
+  `email` VARCHAR(255) NULL ,
   `facebook_id` BIGINT(20) NULL ,
   `created` DATETIME NULL ,
   `modified` DATETIME NULL ,
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) ,
   UNIQUE INDEX `facebook_id_UNIQUE` (`facebook_id` ASC) )
 ENGINE = InnoDB;
 
@@ -83,14 +82,18 @@ DROP TABLE IF EXISTS `moneybuckets`.`accounts_users` ;
 
 CREATE  TABLE IF NOT EXISTS `moneybuckets`.`accounts_users` (
   `account_id` INT NOT NULL ,
-  `user_id` INT NULL ,
-  `facebook_id` INT NULL ,
-  PRIMARY KEY (`account_id`, `user_id`, `facebook_id`) ,
+  `user_id` INT NOT NULL ,
+  PRIMARY KEY (`account_id`, `user_id`) ,
   INDEX `fk_accounts_users_account` (`account_id` ASC) ,
-  INDEX `facebook_id` (`facebook_id` ASC) ,
+  INDEX `fk_accounts_users_user` (`user_id` ASC) ,
   CONSTRAINT `fk_accounts_users_account`
     FOREIGN KEY (`account_id` )
     REFERENCES `moneybuckets`.`accounts` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_accounts_users_user`
+    FOREIGN KEY (`user_id` )
+    REFERENCES `moneybuckets`.`users` (`id` )
     ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -267,6 +270,7 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 START TRANSACTION;
 USE `moneybuckets`;
 INSERT INTO `moneybuckets`.`users` (`id`, `email`, `facebook_id`, `created`, `modified`) VALUES (1, 'junker37@gmail.com', 605129552, NULL, NULL);
+INSERT INTO `moneybuckets`.`users` (`id`, `email`, `facebook_id`, `created`, `modified`) VALUES (2, 'mcjunkin.jill@gmail.com', 668265810, NULL, NULL);
 
 COMMIT;
 
@@ -277,7 +281,7 @@ START TRANSACTION;
 USE `moneybuckets`;
 INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (1, 1, 'Unallocated', 'Funds not allocated yet', 0, 0, 0, NULL, NULL);
 INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (2, 1, 'Gas', 'Automobile gas', 90, 90, 90, NULL, NULL);
-INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (3, 1, 'Utilies', 'Water,electric,natural gas, etc', 167.12, 167.12, 167.12, NULL, NULL);
+INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (3, 1, 'Utilities', 'Water,electric,natural gas, etc', 167.12, 167.12, 167.12, NULL, NULL);
 INSERT INTO `moneybuckets`.`buckets` (`id`, `account_id`, `name`, `description`, `opening_balance`, `available_balance`, `actual_balance`, `created`, `modified`) VALUES (4, 1, 'Miscellaneous', 'Miscellaneous expenditures', 40, 40, 40, NULL, NULL);
 
 COMMIT;
@@ -296,7 +300,8 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `moneybuckets`;
-INSERT INTO `moneybuckets`.`accounts_users` (`account_id`, `user_id`, `facebook_id`) VALUES (1, 0, 668265810);
+INSERT INTO `moneybuckets`.`accounts_users` (`account_id`, `user_id`) VALUES (1, 1);
+INSERT INTO `moneybuckets`.`accounts_users` (`account_id`, `user_id`) VALUES (1, 2);
 
 COMMIT;
 

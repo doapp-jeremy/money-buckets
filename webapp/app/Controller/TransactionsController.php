@@ -12,7 +12,7 @@ class TransactionsController extends AppController {
 	  
 	  $accountIds = $this->getAccountIds();
 	  $this->loadModel('BankAccount');
-		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds,array('BankAccount.id'));
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds);
 		$bankAccountIds = Set::extract('/BankAccount/id',$bankAccounts);
 		
 		$fields = array('Transaction.bank_account_id','Transaction.transaction_type_id','Transaction.date','Transaction.label','Transaction.amount','Transaction.bank_account_after','Transaction.unallocated_amount');
@@ -27,16 +27,17 @@ class TransactionsController extends AppController {
 	}
 	
 	public function edit($transactionId) {
-		
+	  $accountIds = $this->getAccountIds();
+	  		
 		if (!empty($this->request->data))
 		{
 			//debug($this->request->data);exit();
 			$this->loadModel('BankAccount');
 			if ($this->BankAccount->editTransaction($this->request->data))
 			{
+			  $this->clearCacheAfterTransactionSave($accountIds);
 				$this->Session->setFlash("Transaction added!",'flash_success');
 				$this->redirect(array('controller' => 'Transactions', 'action' => 'add'));
-				exit();
 			}
 			else
 			{
@@ -54,8 +55,6 @@ class TransactionsController extends AppController {
 		$user = $this->Auth->user();
 		$userList = array($user['id'] => 'You');
 		
-		$accountIds = $this->getAccountIds();
-		
 		$this->loadModel('BankAccount');
 		$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountIds);
 
@@ -67,7 +66,24 @@ class TransactionsController extends AppController {
 		$this->set(compact('user','userList','bankAccountList','buckets','transactionTypes'));
 	}
 	
+	private function clearCacheAfterTransactionSave($accountIds)
+	{
+	  $this->loadModel('Bucket');
+	  $accountId = $this->getAccountId();
+	  $bucketIds = array();
+	  foreach ($this->request->data['TransactionEntry'] as $transactionEntry)
+	  {
+	    if (!empty($transactionEntry['amount']))
+	    {
+	      $bucketIds[] = $transactionEntry['bucket_id'];
+	    }
+	  }
+	  $this->Bucket->clearBucketCache($accountIds,$bucketIds);
+	}
+	
 	public function add() {
+		Configure::write('debug',0);
+		$accountIds = $this->getAccountIds();
 		
 		if (!empty($this->request->data))
 		{
@@ -77,9 +93,9 @@ class TransactionsController extends AppController {
 
 			if ($this->BankAccount->addTransaction($this->request->data))
 			{
+			  $this->clearCacheAfterTransactionSave($accountIds);
 				$this->Session->setFlash("Transaction added!",'flash_success');
-				$this->redirect(array('controller' => 'Transactions', 'action' => 'add'));
-				exit();
+				$this->redirect(array('controller' => 'Accounts', 'action' => 'home'));
 			}
 			else
 			{
@@ -89,7 +105,6 @@ class TransactionsController extends AppController {
 		$user = $this->Auth->user();
 		$userList = array($user['id'] => 'You');
 		
-		$accountIds = $this->getAccountIds();
 		
 		$this->loadModel('BankAccount');
 		$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountIds);

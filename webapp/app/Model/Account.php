@@ -3,7 +3,7 @@ App::uses('AppModel', 'Model');
 class Account extends AppModel {
   
   public $belongsTo = array(
-      'User' => array(
+      'Creator' => array(
           'className' => 'User',
           'foreignKey' => 'user_id',
           'conditions' => '',
@@ -30,12 +30,27 @@ class Account extends AppModel {
   
   
   public $hasAndBelongsToMany = array(
-      'Friend' => array(
+//       'Friend' => array(
+//           'className' => 'User',
+//           'joinTable' => 'accounts_users',
+//           'foreignKey' => 'account_id',
+//           'associationForeignKey' => 'facebook_id',
+//           'unique' => 'keepExisting',
+//           'conditions' => '',
+//           'fields' => '',
+//           'order' => '',
+//           'limit' => '',
+//           'offset' => '',
+//           'finderQuery' => '',
+//           'deleteQuery' => '',
+//           'insertQuery' => ''
+//       ),
+      'User' => array(
           'className' => 'User',
           'joinTable' => 'accounts_users',
           'foreignKey' => 'account_id',
-          'associationForeignKey' => 'facebook_id',
-          'unique' => 'keepExisting',
+          'associationForeignKey' => 'user_id',
+          'unique' => false,
           'conditions' => '',
           'fields' => '',
           'order' => '',
@@ -46,8 +61,7 @@ class Account extends AppModel {
           'insertQuery' => ''
       )
   );
-  
-  
+   
 //   public function afterSave($created)
 //   {
 //     if ($created)
@@ -72,9 +86,4 @@ class Account extends AppModel {
 //     return parent::afterSave($created);
 //   }
   
-  public function getAccountsForUser($user)
-  {
-    $conditions = array($this->alias . '.user_id' => $user['id']);
-    return $this->find('list', compact('conditions'));
-  }
 }

@@ -29,15 +29,46 @@ class Bucket extends AppModel {
   				'counterQuery' => ''
   		)
   );
-    
+  
+  public static function clearBucketCache($accountId,$bucketIds)
+  {
+    $keys = array();
+    $keys[] = self::getBucketCacheKey($accountId);
+    foreach ($bucketIds as $bucketId)
+    {
+      $keys[] = self::getTransactionEntriesCacheKey($bucketId);
+    }
+    foreach ($keys as $key)
+    {
+      Cache::delete($key);
+    }
+  }
+
+  public static function getBucketCacheKey($accountIds)
+  {
+    if (!is_array($accountIds)) $accountIds = array($accountIds);
+    return 'buckets_for_accounts_' . implode('_',$accountIds);
+  }
+  
   public function getBucketsForAccounts($accountIds,$fields=array(),$contains=array())
   {
+    $key = self::getBucketCacheKey($accountIds);
+    if (($buckets = Cache::read($key)) !== false) return $buckets;
     $conditions = array($this->alias . '.account_id' => $accountIds);
-    return $this->find('all',compact('fields','conditions','contain'));
+    $buckets = $this->find('all',compact('fields','conditions','contain'));
+    if (false !== $buckets) Cache::write($key, $buckets);
+    return $buckets;
+  }
+  
+  public static function getTransactionEntriesCacheKey($bucketId)
+  {
+    return "bucket_transaction_entries_{$bucketId}";
   }
   
   public function getTransactionEntries($bucketId)
   {
+    $key = self::getTransactionEntriesCacheKey($bucketId);
+    if (false !== ($bucket = Cache::read($key))) return $bucket;
     $conditions = array('Bucket.id' => $bucketId);
     $fields = array('Bucket.id','Bucket.name');
     $contain = array(
@@ -46,7 +77,9 @@ class Bucket extends AppModel {
             'Transaction' => array('fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.amount'))
         )
     );
-    return $this->find('first',compact('fields','conditions','contain'));
+    $bucket = $this->find('first',compact('fields','conditions','contain'));
+    if (false !== $bucket) Cache::write($key, $bucket);
+    return $bucket;
   }
   
 }

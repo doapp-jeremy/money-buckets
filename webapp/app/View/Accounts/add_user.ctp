@@ -14,7 +14,7 @@ echo $this->Form->create('Account', array(
 ?>
 <fieldset id="accountUserFieldset">
   <?php
-	echo $this->Form->input("Friend.id", array(
+	echo $this->Form->input("User.facebook_id", array(
 			'label'=>array('text'=>__('Friend'),'class'=>'control-label'),
 	    'options' => $friendList,
 	    'class'=>'input-xlarge',
