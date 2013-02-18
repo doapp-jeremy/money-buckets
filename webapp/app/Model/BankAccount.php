@@ -120,7 +120,7 @@ class BankAccount extends AppModel {
   		$contain = array(
   				'Account' => array('fields' => array('Account.id','Account.unallocated_bucket_id'))
   		);
-  		$bankAccount = $this->BankAccount->find('first',compact('fields','conditions','contain'));
+  		$bankAccount = $this->find('first',compact('fields','conditions','contain'));
   		$unallocattedBucketId = $bankAccount['Account']['unallocated_bucket_id'];
   		$newTransactionEntry = array(
   				'user_id' => $transaction['Transaction']['user_id'],
