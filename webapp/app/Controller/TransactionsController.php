@@ -94,7 +94,7 @@ class TransactionsController extends AppController {
 			if ($this->BankAccount->addTransaction($this->request->data))
 			{
 			  $this->clearCacheAfterTransactionSave($accountIds);
-				$this->Session->setFlash("Transaction added!",'flash_success');
+				$this->Session->setFlash("Transaction {$this->request->data['Transaction']['label']} for {$this->request->data['Transaction']['amount']} on {$this->request->data['Transaction']['date']} added!",'flash_success');
 				$this->redirect(array('controller' => 'Accounts', 'action' => 'home'));
 			}
 			else
