@@ -62,7 +62,7 @@ $this->AssetCompress->autoInclude = false;
 <body>
 	<div id="container">
 		<div id="header">
-			<h1>header</h1>
+			<h1>Money Buckets</h1>
 		</div>
 		<div id="content">
 		  <?php echo $this->Facebook->logout(array('redirect' => array('controller' => 'users', 'action' => 'logout'))); ?>
@@ -72,7 +72,6 @@ $this->AssetCompress->autoInclude = false;
 			<?php echo $this->fetch('content'); ?>
 		</div>
 		<div id="footer">
-		footer
 		</div>
 	</div>
 	<?php //echo $this->element('sql_dump'); ?>
