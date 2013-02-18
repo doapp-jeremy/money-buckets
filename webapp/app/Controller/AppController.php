@@ -38,7 +38,7 @@ class AppController extends Controller {
       'AssetCompress.AssetCompress',
       'Bootstrap' => array('className' => 'TwitterBootstrap.TwitterBootstrap'));
   public $components = array('Session',
-      'DebugKit.Toolbar',
+      //'DebugKit.Toolbar',
       'Auth' => array(
           'authenticate' => array(
               'Form' => array(
