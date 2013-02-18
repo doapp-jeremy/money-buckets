@@ -35,7 +35,7 @@ class TransactionsController extends AppController {
 			$this->loadModel('BankAccount');
 			if ($this->BankAccount->editTransaction($this->request->data))
 			{
-				$this->Session->setFlash("Transaction added!",'flash_success');
+				$this->Session->setFlash("Transaction {$this->request->data['Transaction']['label']} for {$this->request->data['Transaction']['amount']} on {$this->request->data['Transaction']['date']['month']}/{$this->request->data['Transaction']['date']['day']} saved!",'flash_success');
 				$this->redirect(array('controller' => 'Transactions', 'action' => 'add'));
 			}
 			else
