@@ -40,27 +40,27 @@ class Transaction extends AppModel {
   		)
   );
   
-//   public function beforeDelete($cascade = true)
-//   {
-//   	$fields = array('Transaction.bank_account_id','Transaction.amount','Transaction.unallocated_amount');
-//   	$conditions = array('Transaction.id' => $this->id);
-//   	$contain = array(
-//   			'BankAccount' => array('fields' => array('BankAccount.id','BankAccount.account_id','BankAccount.current_balance','BankAccount.unallocated_balance')),
-//   			'TransactionEntry' => array(
-//   					'fields' => array('TransactionEntry.bucket_id','TransactionEntry.amount'),
-//   					'conditions' => array('TransactionEntry.amount > 0'),
-//   					'Bucket' => array('fields' => array('Bucket.available_balance','Bucket.actual_balance'))
-//   			),
-//   	);
-//   	$transaction = $this->find('first',compact('fields','conditions','contain'));
-//   	debug($transaction);
-//   	exit();
-//   }
+  public function beforeDelete($cascade = true)
+  {
+  	$fields = array('Transaction.bank_account_id','Transaction.amount','Transaction.unallocated_amount');
+  	$conditions = array('Transaction.id' => $this->id);
+  	$contain = array(
+  			'BankAccount' => array('fields' => array('BankAccount.id','BankAccount.account_id','BankAccount.current_balance','BankAccount.unallocated_balance')),
+  			'TransactionEntry' => array(
+  					'fields' => array('TransactionEntry.bucket_id','TransactionEntry.amount'),
+  					'conditions' => array('TransactionEntry.amount > 0'),
+  					'Bucket' => array('fields' => array('Bucket.available_balance','Bucket.actual_balance'))
+  			),
+  	);
+  	$this->data = $this->read(null, $this->id);
+  	debug($this->data);
+  	return parent::beforeDelete($cascade);
+  }
   
-//   public function afterDelete()
-//   {
-  	
-//   }
+  public function afterDelete()
+  {
+  	$this->BankAccount->reprocessTransactions($this->data['Transaction']['bank_account_id']);
+  }
   
   public function updateAfterSave($transaction)
   {

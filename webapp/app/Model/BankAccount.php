@@ -280,12 +280,9 @@ class BankAccount extends AppModel {
   	$fields = array('BankAccount.id','BankAccount.account_id','BankAccount.opening_balance','BankAccount.current_balance');
   	$conditions = array('BankAccount.id' => $bankAccountId);
   	$contain = array(
-//   			'Bucket' => array(
-//   					'fields' => array('Bucket.id','Bucket.name','Bucket.opening_balance','Bucket.available_balance','Bucket.actual_balance'),
-//   					'TransactionEntry' => array(
-//   							'fields' => array('TransactionEntry.id','TransactionEntry.bucket_id','TransactionEntry.bucket_before','TransactionEntry.amount','TransactionEntry.bucket_after'),
-//   					)
-//   			),
+  			'Bucket' => array(
+  					'fields' => array('Bucket.id'),
+  			),
   			'Transaction' => array(
   					'fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.bank_account_before','Transaction.amount','Transaction.bank_account_after'),
   					'order' => array('Transaction.date' => 'ASC',' Transaction.created' => 'ASC'),
@@ -295,6 +292,7 @@ class BankAccount extends AppModel {
   	debug($bankAccount);
   	$bankAccountBefore = $bankAccount['BankAccount']['opening_balance'];
   	$previousTransactionId = null;
+  	$bucketIds = Set::extract('/Bucket/id',$bankAccount);
   	foreach ($bankAccount['Transaction'] as &$transaction)
   	{
   		$transaction['bank_account_before'] = $bankAccountBefore;
@@ -321,7 +319,10 @@ class BankAccount extends AppModel {
   	$this->id = $bankAccount['BankAccount']['id'];
   	if ($this->saveField('current_balance',$bankAccount['BankAccount']['current_balance']) && $this->Transaction->saveAll($bankAccount['Transaction']))
   	{
-  		return $this->reprocessBucketsForAccount($bankAccount['BankAccount']['account_id']);
+  		$rc = $this->reprocessBucketsForAccount($bankAccount['BankAccount']['account_id']);
+  		debug($bucketIds);
+  		$this->Account->Bucket->clearBucketCache($bankAccount['BankAccount']['account_id'],$bucketIds);
+  		return $rc;
   	}
   	return false;
   }

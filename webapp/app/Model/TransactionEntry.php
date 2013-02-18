@@ -2,7 +2,7 @@
 App::uses('AppModel', 'Model');
 class TransactionEntry extends AppModel {
   
-  public $order = array('Transaction.date' => 'ASC', 'Transaction.created' => 'ASC');
+  public $order = array('TransactionEntry.date' => 'ASC', 'TransactionEntry.created' => 'ASC');
   
   public $belongsTo = array(
       'Transaction' => array(
