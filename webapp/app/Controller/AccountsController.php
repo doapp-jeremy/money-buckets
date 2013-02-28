@@ -14,12 +14,14 @@ class AccountsController extends AppController {
 	{
 	  $accountId = $this->getAccountId();
 	  $this->loadModel('BankAccount');
-		$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountId);
-		if (empty($bankAccountList))
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountId);
+		if (empty($bankAccounts))
 		{
 		  $this->Session->setFlash("Please add a bank account!",'flash_success');
 		  $this->redirect('/bank_accounts/add');
 		}
+		$bankAccountList = Set::combine($bankAccounts, '{n}.BankAccount.id', '{n}.BankAccount.name');
+	  //$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountId);
 		
 		$this->loadModel('Bucket');
 		$buckets = $this->Bucket->getBucketsForAccounts($accountId, array('Bucket.id','Bucket.name','Bucket.available_balance'));
@@ -32,7 +34,23 @@ class AccountsController extends AppController {
 		$user = $this->Auth->user();
 		$userList = array($user['id'] => 'You');
 		
-		$this->set(compact('bankAccountList','buckets','bucketIds','user','userList','transactionTypes'));
+		$allocated = 0;
+		foreach ($buckets as $bucket)
+		{
+			$allocated += $bucket['Bucket']['available_balance'];
+		}
+		$bankAccountAmount = 0;
+		foreach ($bankAccounts as $bankAccount)
+		{
+			$bankAccountAmount += $bankAccount['BankAccount']['current_balance'];
+		}
+		$unallocatedAmount = $bankAccountAmount - $allocated;
+		if ($unallocatedAmount)
+		{
+			$this->Session->setFlash("Unallocated amount: ${$unallocatedAmount}",'flash_error');
+		}
+		
+		$this->set(compact('bankAccountList','buckets','bucketIds','user','userList','transactionTypes','unallocatedAmount'));
 	}
 
 	public function index() {
