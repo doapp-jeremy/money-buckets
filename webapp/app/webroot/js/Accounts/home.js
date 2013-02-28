@@ -114,17 +114,35 @@ $(function() {
     "iDisplayLength":10,
     "aoColumns": [
                 {
+                    "sTitle": 'Actions',
+                    "mData": "id",
+                    "mRender": function( data, type, full ) {
+                      if (data)
+                      {
+                        return '<a href="/transactions/edit/' + data + '">edit</a> - <a onclick="return confirm(\'Are you sure you want to delete transaction ' + full.label + '?\')" href="/transactions/delete/' + data + '">delete</a>';
+                      }
+                      return '';
+                    },
+                    "bSortable": false,
+                    "sWidth": "80px"
+                    //"sClass": "check"
+                },
+                {
                   "sTitle": "Date",
-                  "mData": "Transaction.date",
+                  "mData": "date",
                   "sWidth": "100px",
                   "mRender": function( data, type, full ) {
-                    var theName = jQuery('<div />').text(data).html();
-                    return theName;
+                    if (data)
+                    {
+                      var theName = jQuery('<div />').text(data).html();
+                      return theName;
+                    }
+                    return '';
                   },
                 },
                 {
                   "sTitle": "Label",
-                  "mData": "Transaction.label",
+                  "mData": "label",
                   "mRender": function( data, type, full ) {
                     var theName = jQuery('<div />').text(data).html();
                     return theName;
@@ -132,10 +150,10 @@ $(function() {
                 },
                 {
                   "sTitle": "Increase",
-                  "mData": "Transaction.amount",
+                  "mData": "amount",
                   "sWidth": "150px",
                   "mRender": function( data, type, full ) {
-                    if (full.Transaction.transaction_type_id == 2)
+                    if (data && (full.transaction_type_id == 2))
                     {
                       return data;
                     }
@@ -145,10 +163,10 @@ $(function() {
                 },
                 {
                   "sTitle": "Decrease",
-                  "mData": "Transaction.amount",
+                  "mData": "amount",
                   "sWidth": "150px",
                   "mRender": function( data, type, full ) {
-                    if (full.Transaction.transaction_type_id == 1)
+                    if (data && (full.transaction_type_id == 1))
                     {
                       return data;
                     }
@@ -158,7 +176,7 @@ $(function() {
                 },
                 {
                   "sTitle": "Balance",
-                  "mData": "Transaction.bank_account_after",
+                  "mData": "bank_account_after",
                   "sWidth": "150px",
                   "mRender": function( data, type, full ) {
                     return data;

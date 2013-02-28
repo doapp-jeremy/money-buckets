@@ -15,7 +15,7 @@ class TransactionsController extends AppController {
 		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds);
 		$bankAccountIds = Set::extract('/BankAccount/id',$bankAccounts);
 		
-		$fields = array('Transaction.bank_account_id','Transaction.transaction_type_id','Transaction.date','Transaction.label','Transaction.amount','Transaction.bank_account_after','Transaction.unallocated_amount');
+		$fields = array('Transaction.id','Transaction.bank_account_id','Transaction.transaction_type_id','Transaction.date','Transaction.label','Transaction.amount','Transaction.bank_account_after','Transaction.unallocated_amount');
 		$contain = array(
 		    'BankAccount' => array('fields' => array('BankAccount.name'))
 		);
@@ -81,6 +81,7 @@ class TransactionsController extends AppController {
 	}
 	
 	public function add() {
+		Configure::write('debug',0);
 		$accountIds = $this->getAccountIds();
 		
 		if (!empty($this->request->data))
@@ -116,9 +117,10 @@ class TransactionsController extends AppController {
 	
 	public function delete($transactionId)
 	{
+		Configure::write('debug',2);
 		// TODO: verify user has access to delete transaction
 		$this->loadModel('Transaction');
 		$this->Transaction->delete($transactionId);
-		$this->redirect(array('controller' => 'Transactions', 'action' => 'add'));
+		$this->redirect(array('controller' => 'accounts', 'action' => 'home'));
 	}
 }

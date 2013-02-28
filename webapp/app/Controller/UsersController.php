@@ -33,7 +33,7 @@ class UsersController extends AppController {
 // 	  debug($this->Auth->user());
 // 	  exit();
 	  //Logic to happen after successful facebook login.
-	  $this->redirect('/buckets');
+	  $this->redirect('/');
 	}
 		
 	public function login() {

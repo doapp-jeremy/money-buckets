@@ -105,9 +105,31 @@ class Transaction extends AppModel {
   	}
   }
   
-  public function getTransactionsForBankAccount($bankAccountIds, $fields = array(), $contain = array())
+  public function getTransactionsForBankAccount($bankAccountId, $fields = array(), $contain = array())
   {
-    $conditions = array('Transaction.bank_account_id' => $bankAccountIds);
-    return $this->find('all',compact('fields','conditions','contain'));
+    //$conditions = array('Transaction.bank_account_id' => $bankAccountId);
+    //$transactions = $this->find('all',compact('fields','conditions','contain'));
+    $fields = array('BankAccount.id','BankAccount.opening_balance','BankAccount.created');
+    $conditions = array('BankAccount.id' => $bankAccountId);
+    $contain = array(
+    		'Transaction' => array(
+    				'fields' => array('Transaction.id','Transaction.date','Transaction.label','Transaction.transaction_type_id','Transaction.amount','Transaction.bank_account_after'),
+    				'order' => array('Transaction.date' => 'DESC','Transaction.created DESC')
+    		)
+    );
+    $bankAccount = $this->BankAccount->find('first',compact('fields','conditions','contain'));
+    $initialTransaction = array(
+    	'id' => false,
+    	'date' => false,
+    	'label' => 'Opening Balance',
+    	'transaction_type_id' => '2',
+    	'amount' => false,
+    	'bank_account_after' => $bankAccount['BankAccount']['opening_balance'],
+   	);
+    if (empty($bankAccount['Transaction']))
+    {
+    	return array($initialTransaction);
+    }
+    return array_merge(array($initialTransaction), $bankAccount['Transaction']);
   }
 }

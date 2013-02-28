@@ -275,13 +275,16 @@ class BankAccount extends AppModel {
   	return true;
   }
   
-  private function reprocessTransactions($bankAccountId)
+  public function reprocessTransactions($bankAccountId)
   {
   	$fields = array('BankAccount.id','BankAccount.account_id','BankAccount.opening_balance','BankAccount.current_balance');
   	$conditions = array('BankAccount.id' => $bankAccountId);
   	$contain = array(
-  			'Bucket' => array(
-  					'fields' => array('Bucket.id'),
+  			'Account' => array(
+  				'fields' => array('Account.id'),
+	  			'Bucket' => array(
+	  					'fields' => array('Bucket.id'),
+	  			),
   			),
   			'Transaction' => array(
   					'fields' => array('Transaction.id','Transaction.transaction_type_id','Transaction.bank_account_before','Transaction.amount','Transaction.bank_account_after'),
@@ -292,7 +295,7 @@ class BankAccount extends AppModel {
   	debug($bankAccount);
   	$bankAccountBefore = $bankAccount['BankAccount']['opening_balance'];
   	$previousTransactionId = null;
-  	$bucketIds = Set::extract('/Bucket/id',$bankAccount);
+  	$bucketIds = Set::extract('/Account/Bucket/id',$bankAccount);
   	foreach ($bankAccount['Transaction'] as &$transaction)
   	{
   		$transaction['bank_account_before'] = $bankAccountBefore;
