@@ -45,9 +45,9 @@ class AccountsController extends AppController {
 			$bankAccountAmount += $bankAccount['BankAccount']['current_balance'];
 		}
 		$unallocatedAmount = $bankAccountAmount - $allocated;
-		if ($unallocatedAmount)
+		if ($unallocatedAmount >= 0.01)
 		{
-			$this->Session->setFlash("Unallocated amount: ${$unallocatedAmount}",'flash_error');
+			$this->Session->setFlash("Unallocated amount: {$unallocatedAmount}",'flash_error');
 		}
 		
 		$this->set(compact('bankAccountList','buckets','bucketIds','user','userList','transactionTypes','unallocatedAmount'));
