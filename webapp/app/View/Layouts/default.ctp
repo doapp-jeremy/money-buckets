@@ -61,9 +61,7 @@ $this->AssetCompress->autoInclude = false;
 </head>
 <body>
 	<div id="container">
-		<div id="header">
-			<h1>Money Buckets</h1>
-		</div>
+		<?php echo $this->element('header');?>
 		<div id="content">
 		  <?php echo $this->Facebook->logout(array('redirect' => array('controller' => 'users', 'action' => 'logout'))); ?>
 			<?php echo $this->Session->flash(); ?>
