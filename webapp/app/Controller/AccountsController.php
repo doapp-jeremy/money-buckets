@@ -12,9 +12,9 @@ class AccountsController extends AppController {
 	
 	public function home()
 	{
-	  $accountId = $this->getAccountId();
+	  $accountIds = $this->getAccountIds();
 	  $this->loadModel('BankAccount');
-		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountId);
+		$bankAccounts = $this->BankAccount->getBankAccountsForAccounts($accountIds);
 		if (empty($bankAccounts))
 		{
 		  $this->Session->setFlash("Please add a bank account!",'flash_success');
