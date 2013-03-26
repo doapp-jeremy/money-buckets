@@ -22,9 +22,9 @@ class AccountsController extends AppController {
 		}
 		$bankAccountList = Set::combine($bankAccounts, '{n}.BankAccount.id', '{n}.BankAccount.name');
 	  //$bankAccountList = $this->BankAccount->getBankAccountListForAccounts($accountId);
-		
+
 		$this->loadModel('Bucket');
-		$buckets = $this->Bucket->getBucketsForAccounts($accountId, array('Bucket.id','Bucket.name','Bucket.available_balance'));
+		$buckets = $this->Bucket->getBucketsForAccounts($accountIds, array('Bucket.id','Bucket.name','Bucket.available_balance'));
 		$bucketIds = Set::extract('/Bucket/id',$buckets);
 		
 		$this->loadModel('TransactionType');
